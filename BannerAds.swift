@@ -11,7 +11,7 @@ import SkeletonView
 
  class BannerAds {
      init(){
-         heightForBanner()
+         //heightForBanner()
      }
     var bannerView: GADBannerView!
      var isFirstReloadBanner: Bool = false
@@ -19,20 +19,25 @@ import SkeletonView
      var heightBanner: CGFloat = 50
      func addBannerViewToView(vc:UIViewController?, bgSkeletonView: UIView?, adSize: GADAdSize, adUnitID: String, heightBannerAdsConstraint: inout NSLayoutConstraint) {
         guard let vc = vc  else {return}
-        bannerView = GADBannerView(adSize: adSize)
-        bannerView.translatesAutoresizingMaskIntoConstraints = false
-        vc.view.addSubview(bannerView)
+         bannerView = GADBannerView(adSize: adSize)
+         bannerView.layer.borderWidth = 1
+         bannerView.layer.borderColor = UIColor.black.cgColor
+         bannerView.translatesAutoresizingMaskIntoConstraints = false
+         vc.view.addSubview(bannerView)
         setupSkeletonBanner(vc: vc, bgSkeletonView: bgSkeletonView)
-         heightBannerAdsConstraint.constant = heightBanner
+         heightBannerAdsConstraint.constant = 50
          NSLayoutConstraint.activate([
-            bannerView.bottomAnchor.constraint(equalTo: vc.view.bottomAnchor, constant: safeAreaBottom),
+            bannerView.bottomAnchor.constraint(equalTo: vc.view.safeAreaLayoutGuide.bottomAnchor),
              bannerView.trailingAnchor.constraint(equalTo: vc.view.trailingAnchor),
              bannerView.leadingAnchor.constraint(equalTo: vc.view.leadingAnchor)
          ])
+        
         bannerView.adUnitID = adUnitID
         bannerView.rootViewController = vc
         bannerView.delegate = vc as? any GADBannerViewDelegate
-        bannerView.load(GADRequest())
+         DispatchQueue.global().async {
+             self.bannerView.load(GADRequest())
+         }
     }
      
      func reloadBannerView(vc:UIViewController?, bgSkeletonView: UIView?, adUnitID: String, heightBannerAdsConstraint: inout NSLayoutConstraint) -> Bool {
@@ -41,21 +46,25 @@ import SkeletonView
              bannerView.adUnitID = adUnitID
              bannerView.rootViewController = vc
              bannerView.delegate = vc as? any GADBannerViewDelegate
-             bannerView.load(GADRequest())
+             DispatchQueue.global().async {
+                 self.bannerView.load(GADRequest())
+             }
              return true
          }else {
-             bgSkeletonView?.removeFromSuperview()
+             bgSkeletonView?.isHidden = true
              heightBannerAdsConstraint.constant = 0
-             bannerView.removeFromSuperview()
+             bannerView.isHidden = true
              return false
          }
      }
      
      func reloadBanner(bgSkeletonView: UIView?, heightBannerAdsConstraint: inout NSLayoutConstraint) {
          if NetworkManager.shared.isConnected() {
-             heightBannerAdsConstraint.constant = heightBanner
+             heightBannerAdsConstraint.constant = 50
              bgSkeletonView?.isHidden = false
-             bannerView.load(GADRequest())
+             DispatchQueue.global().async {
+                 self.bannerView.load(GADRequest())
+             }
          }else {
              heightBannerAdsConstraint.constant = 0
          }

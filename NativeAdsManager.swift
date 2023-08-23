@@ -277,8 +277,8 @@ enum TypeAds {
            
         }else {
             heightNativeAdsConstraint?.constant = 0
-            nativeView.removeFromSuperview()
-            skeletonView.removeFromSuperview()
+            nativeView.isHidden = true
+            skeletonView.isHidden = true
         }
     }
 }
